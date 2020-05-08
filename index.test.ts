@@ -38,7 +38,7 @@ it("should click infopane to the right, verify content is same", async () => {
   //click n-1 times
   for (let x = 0; x < expected_cards; x++) {
     //grab card by class
-    const cardpath = `//div[contains(concat(' ',normalize-space(@class),' '),'carousel_tabPanel-DS-card1-1')]`;
+    const cardpath = `//div[contains(@class, 'carousel_tabPanel-DS-card1-')]`;
 
     const child: WebElement = await anchor.findElement(By.xpath(cardpath));
     console.log(await child.getText());

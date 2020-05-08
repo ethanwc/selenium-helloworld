@@ -14,7 +14,7 @@
     "chromedriver": "^78.0.1",
     "geckodriver": "^1.16.0",
     "jest": "^24.5.0",
-    "selenium-webdriver": "3.x",
+    "selenium-webdriver": "^3.6.0",
     "ts-jest": "^24.1.0",
     "typescript": "^3.6.4"
   },

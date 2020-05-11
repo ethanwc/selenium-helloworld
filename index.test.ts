@@ -7,7 +7,6 @@ import "geckodriver";
 import { findByCss, findByXpath, findByXpathMany } from "./helpers";
 
 const rootURL = "https://microsoftnews.msn.com/?pcsonly=true";
-const expected_cards = 14;
 
 let driver: WebDriver;
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000 * 60 * 5;
@@ -18,11 +17,10 @@ beforeAll(async () => {
 
 afterAll(async () => driver.quit());
 
-it("initialises the context", async () => {
+it.skip("Compare infoplane slides count to preset value", async () => {
   await driver.get(rootURL);
-});
+  const expected_cards = 14;
 
-it("Compare infoplane slides count to preset value", async () => {
   //find carousel container
   const anchor = await findByXpath(
     "//*[@class='carousel_tabPanels-DS-card1-1']",
@@ -51,7 +49,88 @@ it("Compare infoplane slides count to preset value", async () => {
   expect(lastCardDisplayed).toEqual(true);
 });
 
-it.skip("Use a card action to block a publisher", async () => {
+it("Use a card action to block a publisher", async () => {
+  //Handle double GUID bug
+  await driver.manage().deleteAllCookies();
+  await driver.get(rootURL);
+  await sleep(1000);
+
+  await driver.navigate().refresh();
+  await sleep(8000);
+
   //clear cookies
   //wait 400 ms
+
+  const cards: WebElement[] = await findByXpathMany(
+    "//div//div[contains(@class, 'contentPreview-DS-card1-')]",
+    driver
+  );
+
+  const anchor = cards[6];
+
+  const expected_text = await (await anchor.getText()).split("\n")[2];
+ 
+  const settingIcon: WebElement = await anchor.findElement(
+    By.xpath("//button[contains(@class, 'button-DS-card1-')]")
+  );
+
+  await settingIcon.click();
+  sleep(3000);
+
+  const hideStoryButton: WebElement = await findByXpath(
+    "//*[text()[contains(.,'Hide stories')]]",
+    driver
+  );
+
+  await hideStoryButton.click();
+
+  sleep(3000);
+
+  const confirmHideStoryButton: WebElement = await findByXpath(
+    "//button//*[text()[contains(.,'Hide')]]",
+    driver
+  );
+
+  await confirmHideStoryButton.click();
+
+  sleep(3000);
+
+  const personalizeLink: WebElement = await findByXpath(
+    "//a//*[text()[contains(.,'Personalize')]]",
+    driver
+  );
+
+  await personalizeLink.click();
+  sleep(3000);
+
+  const hiddenPublishersButton: WebElement = await findByXpath(
+    "//div//*[text()[contains(.,'Hidden Publishers')]]",
+    driver
+  );
+
+  await hiddenPublishersButton.click();
+
+  sleep(3000);
+
+  const publisherCard: WebElement = await findByXpath(
+    "//div[contains(@class, 'publisherCard-DS-EntryPoint4-1')]",
+    driver
+  );
+
+  const actual_text = await (await publisherCard.getText()).split("\n")[0];
+  sleep(3000);
+
+
+  expect(expected_text).toEqual(actual_text);
+
+  
 });
+
+function sleep(milliseconds: number) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if (new Date().getTime() - start > milliseconds) {
+      break;
+    }
+  }
+}

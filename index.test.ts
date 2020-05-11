@@ -22,31 +22,28 @@ it("initialises the context", async () => {
   await driver.get(rootURL);
 });
 
-it("should click infopane to the right, verify content is same", async () => {
-  //find carousel container of cards
+it("Compare infoplane slides count to preset value", async () => {
+  //find carousel container
   const anchor = await findByXpath(
     "//*[@class='carousel_tabPanels-DS-card1-1']",
     driver
   );
 
-  const rightSlideButton = await findByXpath(
-    "//button[@title='Next Slide']",
-    driver
+  //find carousel cards
+  const cardsPath = `//div[contains(@class, 'carousel_tabPanel-DS-card1-')]`;
+
+  //find next slide button
+  const nextSlide = await findByXpath("//button[@title='Next Slide']", driver);
+
+  const carouselCards: WebElement[] = await anchor.findElements(
+    By.xpath(cardsPath)
   );
+  const found_cards = carouselCards.length;
 
-  //get carousel cards
-  //click n-1 times
-  for (let x = 0; x < expected_cards; x++) {
-    //grab card by class
-    const cardpath = `//div[contains(@class, 'carousel_tabPanel-DS-card1-')]`;
-
-    const child: WebElement = await anchor.findElement(By.xpath(cardpath));
-    console.log(await child.getText());
-
-    if (x < expected_cards - 1) await rightSlideButton.click();
+  //click through all cards
+  for (let x = 0; x < found_cards - 1; x++) {
+    await nextSlide.click();
   }
 
-  const actual = "";
-  const expected = "";
-  // expect(actual).toEqual(expected);
+  expect(found_cards).toEqual(expected_cards);
 });

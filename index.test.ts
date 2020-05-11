@@ -45,5 +45,13 @@ it("Compare infoplane slides count to preset value", async () => {
     await nextSlide.click();
   }
 
+  const lastCardDisplayed = await carouselCards[found_cards - 1].isDisplayed();
+
   expect(found_cards).toEqual(expected_cards);
+  expect(lastCardDisplayed).toEqual(true);
+});
+
+it.skip("Use a card action to block a publisher", async () => {
+  //clear cookies
+  //wait 400 ms
 });

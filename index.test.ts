@@ -54,28 +54,30 @@ it("Use a card action to block a publisher", async () => {
   await driver.manage().deleteAllCookies();
   await driver.get(rootURL);
   await sleep(1000);
-
   await driver.navigate().refresh();
-  await sleep(8000);
+  await sleep(4000);
 
   //clear cookies
   //wait 400 ms
 
   const cards: WebElement[] = await findByXpathMany(
-    "//div//div[contains(@class, 'contentPreview-DS-card1-')]",
+    "//div[contains(@class, 'river-DS-EntryPoint1-')]//div[contains(@class, 'contentPreview-DS-card1')]",
     driver
   );
 
+  //grab the 8th card to check
   const anchor = cards[6];
 
   const expected_text = await (await anchor.getText()).split("\n")[2];
- 
-  const settingIcon: WebElement = await anchor.findElement(
-    By.xpath("//button[contains(@class, 'button-DS-card1-')]")
+
+  const settingIcons: WebElement[] = await findByXpathMany(
+    "//div[contains(@class, 'river-DS-EntryPoint1-')]//div[contains(@class, 'contentCard_attributionRegion-DS-card1-')]//button[contains(@class, 'button-DS-card1-')]",
+    driver
   );
 
+  const settingIcon = settingIcons[6];
+
   await settingIcon.click();
-  sleep(3000);
 
   const hideStoryButton: WebElement = await findByXpath(
     "//*[text()[contains(.,'Hide stories')]]",
@@ -84,16 +86,12 @@ it("Use a card action to block a publisher", async () => {
 
   await hideStoryButton.click();
 
-  sleep(3000);
-
   const confirmHideStoryButton: WebElement = await findByXpath(
     "//button//*[text()[contains(.,'Hide')]]",
     driver
   );
 
   await confirmHideStoryButton.click();
-
-  sleep(3000);
 
   const personalizeLink: WebElement = await findByXpath(
     "//a//*[text()[contains(.,'Personalize')]]",
@@ -110,20 +108,14 @@ it("Use a card action to block a publisher", async () => {
 
   await hiddenPublishersButton.click();
 
-  sleep(3000);
-
   const publisherCard: WebElement = await findByXpath(
-    "//div[contains(@class, 'publisherCard-DS-EntryPoint4-1')]",
+    "//div[contains(@class, 'publisherCard-DS-EntryPoint4-')]",
     driver
   );
 
   const actual_text = await (await publisherCard.getText()).split("\n")[0];
-  sleep(3000);
-
 
   expect(expected_text).toEqual(actual_text);
-
-  
 });
 
 function sleep(milliseconds: number) {

@@ -16,8 +16,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await driver.manage().deleteAllCookies();
   driver.quit();
-  // await driver.manage().deleteAllCookies();
 });
 
 it.skip("Compare infoplane slides count to preset value", async () => {
@@ -60,24 +60,19 @@ it("Use a card action to block a publisher, then check", async () => {
 
   //todo: swap to using wait
   await sleep(4000);
-  //wait 400 ms
 
-
+  //grab the 7th card to check
   const cardPath =
     "(//div[contains(@class, 'river-DS-EntryPoint1-')]//div[contains(@class, 'contentPreview-DS-card1')])[8]";
 
   const card: WebElement = await findByXpath(cardPath, driver);
 
-  //grab the 7th card to check
-  const anchor = card;
-
-  const expected_text = await (await anchor.getText()).split("\n")[2];
+  const expected_text = await (await card.getText()).split("\n")[2];
 
   const settingIcon: WebElement = await findByXpath(
     `(${cardPath}//button)[2]`,
     driver
   );
-  console.log(await settingIcon.getText())
 
   await settingIcon.click();
 
@@ -101,7 +96,7 @@ it("Use a card action to block a publisher, then check", async () => {
   );
 
   await personalizeLink.click();
-  sleep(3000);
+  await sleep(3000);
 
   const hiddenPublishersButton: WebElement = await findByXpath(
     "//div//*[text()[contains(.,'Hidden Publishers')]]",
@@ -119,6 +114,9 @@ it("Use a card action to block a publisher, then check", async () => {
 
   expect(expected_text).toEqual(actual_text);
 });
+
+
+
 
 function sleep(milliseconds: number) {
   var start = new Date().getTime();

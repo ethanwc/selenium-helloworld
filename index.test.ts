@@ -52,7 +52,7 @@ it.skip("Compare infoplane slides count to preset value", async () => {
   expect(lastCardDisplayed).toEqual(true);
 });
 
-it("Use a card action to block a publisher, then check", async () => {
+it.skip("Use a card action to block a publisher, then check", async () => {
   //Handle double MUID bug
   await driver.get(rootURL);
   await sleep(1000);
@@ -115,8 +115,42 @@ it("Use a card action to block a publisher, then check", async () => {
   expect(expected_text).toEqual(actual_text);
 });
 
+it("Compares pivotnav interests to the interest page", async () => {
+  await driver.get(rootURL);
 
+  //find overflow expand button
+  const overflowButton = await findByXpath(
+    "//button[contains(@class, 'overflowButton-DS-EntryPoint1-')]",
+    driver
+  );
 
+  await overflowButton.click();
+
+  const navLinks: WebElement[] = await findByXpathMany(
+    "//a[contains(@class, 'navigationItem-DS-EntryPoint1-')]",
+    driver
+  );
+
+  let navText: string[] = [];
+
+  for (let i = 0; i < navLinks.length; i++)
+    if ((await navLinks[i]) && (await navLinks[i].isDisplayed()))
+      navText.push(await navLinks[i].getText());
+
+  const personalizeLink: WebElement = await findByXpath(
+    "//a//*[text()[contains(.,'Personalize')]]",
+    driver
+  );
+
+  const myCards: WebElement[] = await findByXpathMany(
+    "//div[contains(@class, 'topicCard-DS-EntryPoint2-')]",
+    driver
+  );
+
+  for (let i = 0; i < navLinks.length; i++)
+    if ((await myCards[i]) && (await myCards[i].isDisplayed()))
+      console.log(await myCards[i].getText());
+});
 
 function sleep(milliseconds: number) {
   var start = new Date().getTime();

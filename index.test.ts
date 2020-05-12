@@ -116,6 +116,9 @@ it.skip("Use a card action to block a publisher, then check", async () => {
 });
 
 it("Compares pivotnav interests to the interest page", async () => {
+  let navText: string[] = [];
+  let interestText: string[] = [];
+  let comparisonText: string[] = [];
   await driver.get(rootURL);
 
   //find overflow expand button
@@ -131,9 +134,8 @@ it("Compares pivotnav interests to the interest page", async () => {
     driver
   );
 
-  let navText: string[] = [];
-
-  for (let i = 0; i < navLinks.length; i++)
+  //skip 'My Feed' and 'Personalize'
+  for (let i = 2; i < navLinks.length; i++)
     if ((await navLinks[i]) && (await navLinks[i].isDisplayed()))
       navText.push(await navLinks[i].getText());
 
@@ -142,14 +144,28 @@ it("Compares pivotnav interests to the interest page", async () => {
     driver
   );
 
+  personalizeLink.click();
+
   const myCards: WebElement[] = await findByXpathMany(
-    "//div[contains(@class, 'topicCard-DS-EntryPoint2-')]",
+    "(//div[contains(@class, 'interestsRiverSection_grid-DS-EntryPoint2-')])[1]//div[contains(@class, 'topicCard-DS-EntryPoint2-')]",
     driver
   );
 
-  for (let i = 0; i < navLinks.length; i++)
+  for (let i = 0; i < myCards.length; i++)
     if ((await myCards[i]) && (await myCards[i].isDisplayed()))
-      console.log(await myCards[i].getText());
+      await interestText.push(await myCards[i].getText());
+
+  sleep(2000);
+
+  for (let i = 0; i < navText.length; i++) {
+    if (!interestText.includes(navText[i])) comparisonText.push(navText[i]);
+  }
+
+  console.log(navText.toString());
+  console.log(interestText.toString());
+  console.log('Navbar Extra Items')
+  console.log(comparisonText.toString());
+  expect(1).toBe(comparisonText.length);
 });
 
 function sleep(milliseconds: number) {

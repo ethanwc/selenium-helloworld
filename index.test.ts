@@ -116,9 +116,9 @@ it.skip("Use a card action to block a publisher, then check", async () => {
 });
 
 it("Compares pivotnav interests to the interest page", async () => {
-  let navText: string[] = [];
-  let interestText: string[] = [];
-  let comparisonText: string[] = [];
+  let interestLinks: string[] = [];
+  let interestCategories: string[] = [];
+  let actualInterests: string[] = [];
   await driver.get(rootURL);
 
   //find overflow expand button
@@ -134,10 +134,10 @@ it("Compares pivotnav interests to the interest page", async () => {
     driver
   );
 
-  //skip 'My Feed' and 'Personalize'
-  for (let i = 2; i < navLinks.length; i++)
+  //Get interest links
+  for (let i = 0; i < navLinks.length; i++)
     if ((await navLinks[i]) && (await navLinks[i].isDisplayed()))
-      navText.push(await navLinks[i].getText());
+      interestLinks.push(await navLinks[i].getText());
 
   const personalizeLink: WebElement = await findByXpath(
     "//a//*[text()[contains(.,'Personalize')]]",
@@ -151,21 +151,24 @@ it("Compares pivotnav interests to the interest page", async () => {
     driver
   );
 
+  //get interest cards
   for (let i = 0; i < myCards.length; i++)
     if ((await myCards[i]) && (await myCards[i].isDisplayed()))
-      await interestText.push(await myCards[i].getText());
+      await interestCategories.push(await myCards[i].getText());
 
-  sleep(2000);
+  //filter interests
+  for (let i = 0; i < navLinks.length; i++)
+    if (interestCategories.includes(interestLinks[i]))
+      actualInterests.push(interestLinks[i]);
 
-  for (let i = 0; i < navText.length; i++) {
-    if (!interestText.includes(navText[i])) comparisonText.push(navText[i]);
-  }
 
-  console.log(navText.toString());
-  console.log(interestText.toString());
-  console.log('Navbar Extra Items')
-  console.log(comparisonText.toString());
-  expect(1).toBe(comparisonText.length);
+  console.log("Interest Links");
+  console.log(interestLinks.toString());
+  console.log("Interest Cards");
+  console.log(interestCategories.toString());
+  console.log("Actual Interests");
+  console.log(actualInterests.toString());
+  // expect(1).toBe(actualInterests.length);
 });
 
 function sleep(milliseconds: number) {

@@ -1,6 +1,6 @@
 import { By, until, WebDriver } from "selenium-webdriver";
 
-const waitUntilTime = 5000;
+const waitUntilTime = 10000;
 
 export async function findByCss(selector: string, driver: WebDriver) {
   const el = await driver.wait(

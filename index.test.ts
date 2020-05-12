@@ -15,7 +15,10 @@ beforeAll(async () => {
   driver = await new Builder().forBrowser("firefox").build();
 });
 
-afterAll(async () => driver.quit());
+afterAll(async () => {
+  driver.quit();
+  // await driver.manage().deleteAllCookies();
+});
 
 it.skip("Compare infoplane slides count to preset value", async () => {
   await driver.get(rootURL);
@@ -49,33 +52,32 @@ it.skip("Compare infoplane slides count to preset value", async () => {
   expect(lastCardDisplayed).toEqual(true);
 });
 
-it("Use a card action to block a publisher", async () => {
-  //Handle double GUID bug
-  await driver.manage().deleteAllCookies();
+it("Use a card action to block a publisher, then check", async () => {
+  //Handle double MUID bug
   await driver.get(rootURL);
   await sleep(1000);
   await driver.navigate().refresh();
-  await sleep(4000);
 
-  //clear cookies
+  //todo: swap to using wait
+  await sleep(4000);
   //wait 400 ms
 
-  const cards: WebElement[] = await findByXpathMany(
-    "//div[contains(@class, 'river-DS-EntryPoint1-')]//div[contains(@class, 'contentPreview-DS-card1')]",
-    driver
-  );
 
-  //grab the 8th card to check
-  const anchor = cards[6];
+  const cardPath =
+    "(//div[contains(@class, 'river-DS-EntryPoint1-')]//div[contains(@class, 'contentPreview-DS-card1')])[8]";
+
+  const card: WebElement = await findByXpath(cardPath, driver);
+
+  //grab the 7th card to check
+  const anchor = card;
 
   const expected_text = await (await anchor.getText()).split("\n")[2];
 
-  const settingIcons: WebElement[] = await findByXpathMany(
-    "//div[contains(@class, 'river-DS-EntryPoint1-')]//div[contains(@class, 'contentCard_attributionRegion-DS-card1-')]//button[contains(@class, 'button-DS-card1-')]",
+  const settingIcon: WebElement = await findByXpath(
+    `(${cardPath}//button)[2]`,
     driver
   );
-
-  const settingIcon = settingIcons[6];
+  console.log(await settingIcon.getText())
 
   await settingIcon.click();
 
@@ -109,7 +111,7 @@ it("Use a card action to block a publisher", async () => {
   await hiddenPublishersButton.click();
 
   const publisherCard: WebElement = await findByXpath(
-    "//div[contains(@class, 'publisherCard-DS-EntryPoint4-')]",
+    "//div[contains(@class, 'publisherCard-DS-EntryPoint')]",
     driver
   );
 

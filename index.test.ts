@@ -52,14 +52,11 @@ it.skip("Compare infoplane slides count to preset value", async () => {
   expect(lastCardDisplayed).toEqual(true);
 });
 
-it.skip("Use a card action to block a publisher, then check", async () => {
+it("Use a card action to block a publisher, then check", async () => {
   //Handle double MUID bug
   await driver.get(rootURL);
-  await sleep(1000);
+  await driver.sleep(1000);
   await driver.navigate().refresh();
-
-  //todo: swap to using wait
-  await sleep(4000);
 
   //grab the 7th card to check
   const cardPath =
@@ -96,7 +93,7 @@ it.skip("Use a card action to block a publisher, then check", async () => {
   );
 
   await personalizeLink.click();
-  await sleep(3000);
+  await driver.sleep(2000);
 
   const hiddenPublishersButton: WebElement = await findByXpath(
     "//div//*[text()[contains(.,'Hidden Publishers')]]",
@@ -112,10 +109,30 @@ it.skip("Use a card action to block a publisher, then check", async () => {
 
   const actual_text = await (await publisherCard.getText()).split("\n")[0];
 
+  const myFeedLink: WebElement = await findByXpath(
+    "//a//*[text()[contains(.,'My Feed')]]",
+    driver
+  );
+
+  await myFeedLink.click();
+  await driver.sleep(2000);
+
+  const allCards: WebElement[] = await findByXpathMany(
+    "//div[contains(@class,'contentPreview-DS-card1-')]",
+    driver
+  );
+
+  let allPublishers: string = "";
+
+  for (let i = 0; i < allCards.length; i++) {
+    allPublishers = allPublishers + (await allCards[i].getText());
+  }
+
   expect(expected_text).toEqual(actual_text);
+  expect(allPublishers.includes(actual_text)).toEqual(false);
 });
 
-it("Compares pivotnav interests to the interest page", async () => {
+it.skip("Compares pivotnav interests to the interest page", async () => {
   let interestLinks: string[] = [];
   let interestCategories: string[] = [];
   let actualInterests: string[] = [];
@@ -161,21 +178,11 @@ it("Compares pivotnav interests to the interest page", async () => {
     if (interestCategories.includes(interestLinks[i]))
       actualInterests.push(interestLinks[i]);
 
-
   console.log("Interest Links");
   console.log(interestLinks.toString());
   console.log("Interest Cards");
   console.log(interestCategories.toString());
   console.log("Actual Interests");
   console.log(actualInterests.toString());
-  // expect(1).toBe(actualInterests.length);
+  expect(1).toBe(actualInterests.length);
 });
-
-function sleep(milliseconds: number) {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if (new Date().getTime() - start > milliseconds) {
-      break;
-    }
-  }
-}

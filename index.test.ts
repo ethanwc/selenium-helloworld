@@ -15,12 +15,18 @@ beforeAll(async () => {
   driver = await new Builder().forBrowser("firefox").build();
 });
 
-afterAll(async () => {
+beforeEach(async () => {
+  await localStorage.clear();
+  await sessionStorage.clear();
   await driver.manage().deleteAllCookies();
+});
+
+afterAll(async () => {
+  // await driver.manage().deleteAllCookies();
   driver.quit();
 });
 
-it.skip("Compare infoplane slides count to preset value", async () => {
+it("Compare infoplane slides count to preset value", async () => {
   await driver.get(rootURL);
   const expected_cards = 14;
 
@@ -131,12 +137,30 @@ it("Use a card action to block a publisher, then check", async () => {
   expect(expected_text).toEqual(actual_text);
   expect(allPublishers.includes(actual_text)).toEqual(false);
 });
-
-it.skip("Compares pivotnav interests to the interest page", async () => {
+it("Compares pivotnav interests to the interest page", async () => {
   let interestLinks: string[] = [];
   let interestCategories: string[] = [];
   let actualInterests: string[] = [];
   await driver.get(rootURL);
+  await driver.sleep(2000);
+
+  const personalizeLink: WebElement = await findByXpath(
+    "//a//*[text()[contains(.,'Personalize')]]",
+    driver
+  );
+
+  personalizeLink.click();
+
+  await driver.sleep(2000);
+
+  const unsubscribeButton = await findByXpath(
+    "(//div[contains(@class, 'topicCard_actionRegion-DS')])[2]",
+    driver
+  );
+
+  await unsubscribeButton.click();
+
+  await driver.sleep(2000);
 
   //find overflow expand button
   const overflowButton = await findByXpath(
@@ -152,16 +176,10 @@ it.skip("Compares pivotnav interests to the interest page", async () => {
   );
 
   //Get interest links
-  for (let i = 0; i < navLinks.length; i++)
+  //skip first few elements
+  for (let i = 4; i < navLinks.length; i++)
     if ((await navLinks[i]) && (await navLinks[i].isDisplayed()))
       interestLinks.push(await navLinks[i].getText());
-
-  const personalizeLink: WebElement = await findByXpath(
-    "//a//*[text()[contains(.,'Personalize')]]",
-    driver
-  );
-
-  personalizeLink.click();
 
   const myCards: WebElement[] = await findByXpathMany(
     "(//div[contains(@class, 'interestsRiverSection_grid-DS-EntryPoint2-')])[1]//div[contains(@class, 'topicCard-DS-EntryPoint2-')]",
@@ -178,11 +196,5 @@ it.skip("Compares pivotnav interests to the interest page", async () => {
     if (interestCategories.includes(interestLinks[i]))
       actualInterests.push(interestLinks[i]);
 
-  console.log("Interest Links");
-  console.log(interestLinks.toString());
-  console.log("Interest Cards");
-  console.log(interestCategories.toString());
-  console.log("Actual Interests");
-  console.log(actualInterests.toString());
-  expect(1).toBe(actualInterests.length);
+  expect(interestLinks.sort()).toEqual(actualInterests.sort());
 });
